@@ -1,8 +1,14 @@
-# Use the official Elixir image with the latest version
-FROM elixir:1.17-alpine AS builder
+# Use the official Elixir image with Debian for better OpenSSL compatibility
+FROM elixir:1.17-slim AS builder
 
 # Install build dependencies
-RUN apk add --no-cache build-base npm git python3 nodejs
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    npm \
+    git \
+    python3 \
+    nodejs \
+    && rm -rf /var/lib/apt/lists/*
 
 # Prepare build directory
 WORKDIR /app
@@ -12,8 +18,8 @@ RUN mix local.hex --force && \
     mix local.rebar --force
 
 # Install dependencies with the non-root user
-RUN addgroup -g 1000 -S app && \
-    adduser -S app -G app -u 1000
+RUN groupadd -r app -g 1000 && \
+    useradd -r -g app -u 1000 app
 
 # Copy mix files
 COPY mix.exs mix.lock ./
@@ -46,16 +52,24 @@ COPY --chown=app:app . .
 RUN mix release --path /opt/app
 
 # Prepare a new release image
-FROM alpine:3.19 AS app
+FROM ubuntu:22.04 AS app
 
 # Install runtime dependencies
-RUN apk add --no-cache openssl ncurses-libs postgresql-client libstdc++ libgcc
+RUN apt-get update && apt-get install -y \
+    openssl \
+    libncurses5 \
+    postgresql-client \
+    libstdc++6 \
+    libgcc-s1 \
+    ca-certificates \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/app
 
 # Create non-root user
-RUN addgroup -g 1000 -S app && \
-    adduser -S app -G app -u 1000
+RUN groupadd -r app -g 1000 && \
+    useradd -r -g app -u 1000 app
 
 # Copy the release from the builder stage
 COPY --from=builder --chown=app:app /opt/app .
