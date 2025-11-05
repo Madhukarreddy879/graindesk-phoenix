@@ -1,5 +1,89 @@
 # Deployment Guide
 
+## Docker Deployment (Recommended)
+
+### Quick Start with Docker & Traefik
+
+This deployment method uses Docker containers with Traefik for automatic SSL certificate management.
+
+#### Prerequisites
+- Ubuntu 20.04+ or Amazon Linux 2
+- Domain pointing to your server (snvs.dpdns.org)
+- Docker and Docker Compose installed
+
+#### 1. Initial Server Setup
+
+```bash
+# Clone the repository
+git clone <your-repo-url> rice-mill-inventory
+cd rice-mill-inventory
+
+# Run the setup script
+chmod +x setup-ec2.sh
+./setup-ec2.sh
+```
+
+#### 2. Configure Environment
+
+```bash
+# Copy and edit environment file
+cp .env.example .env
+nano .env
+
+# Required variables to update:
+# - DB_PASSWORD (secure database password)
+# - SECRET_KEY_BASE (64-character random string)
+# - SUPER_ADMIN_EMAIL (admin email)
+# - SUPER_ADMIN_PASSWORD (admin password, min 12 chars)
+```
+
+#### 3. Deploy Application
+
+```bash
+# Run deployment script
+chmod +x deploy.sh
+./deploy.sh
+```
+
+Your application will be available at `https://snvs.dpdns.org` with automatic SSL.
+
+#### 4. Management Commands
+
+```bash
+# View logs
+docker-compose -f docker-compose.prod.yml logs -f
+
+# Stop application
+docker-compose -f docker-compose.prod.yml down
+
+# Start application
+docker-compose -f docker-compose.prod.yml up -d
+
+# Update application
+git pull && ./deploy.sh
+
+# Backup database
+./backup.sh
+
+# Restore database
+./restore.sh backups/rice_mill_backup_20240101_120000.sql.gz
+```
+
+#### 5. SSL Certificate Management
+
+Traefik automatically handles SSL certificates using Let's Encrypt:
+- Certificates are stored in `./letsencrypt/`
+- Auto-renewal is handled by Traefik
+- HTTP traffic is automatically redirected to HTTPS
+
+#### 6. Monitoring
+
+- **Traefik Dashboard**: Optional monitoring at `https://traefik.snvs.dpdns.org/dashboard/`
+- **Health Check**: `https://snvs.dpdns.org/health`
+- **Application Logs**: `docker-compose -f docker-compose.prod.yml logs -f app`
+
+## Manual Deployment (Traditional)
+
 ## Production Deployment Checklist
 
 ### 1. Environment Variables

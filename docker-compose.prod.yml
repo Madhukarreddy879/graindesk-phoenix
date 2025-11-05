@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  traefik:
+    image: traefik:v3.1
+    container_name: traefik
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.email=admin@snvs.dpdns.org"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      - "--log.level=INFO"
+      - "--accesslog=true"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
+    networks:
+      - traefik-net
+    restart: unless-stopped
+
+  db:
+    image: postgres:15-alpine
+    container_name: rice_mill_db
+    environment:
+      POSTGRES_DB: rice_mill_inventory_prod
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
+    networks:
+      - app-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d rice_mill_inventory_prod"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rice_mill_app
+    environment:
+      - DATABASE_URL=ecto://${DB_USER}:${DB_PASSWORD}@db:5432/rice_mill_inventory_prod
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
+      - PHX_HOST=snvs.dpdns.org
+      - PORT=4000
+      - SUPER_ADMIN_EMAIL=${SUPER_ADMIN_EMAIL}
+      - SUPER_ADMIN_PASSWORD=${SUPER_ADMIN_PASSWORD}
+      - POOL_SIZE=10
+      - ECTO_IPV6=false
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-net
+      - traefik-net
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rice_mill.rule=Host(`snvs.dpdns.org`)"
+      - "traefik.http.routers.rice_mill.entrypoints=websecure"
+      - "traefik.http.routers.rice_mill.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.rice_mill_http.rule=Host(`snvs.dpdns.org`)"
+      - "traefik.http.routers.rice_mill_http.entrypoints=web"
+      - "traefik.http.routers.rice_mill_http.middlewares=https-redirect"
+      - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
+    volumes:
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+
+volumes:
+  postgres_data:
+
+networks:
+  traefik-net:
+    driver: bridge
+  app-net:
+    driver: bridge

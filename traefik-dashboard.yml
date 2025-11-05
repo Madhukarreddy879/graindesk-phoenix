@@ -1,0 +1,38 @@
+# Traefik Dashboard (Optional - for monitoring)
+# Access at: https://traefik.snvs.dpdns.org/dashboard/
+# Uncomment if you want to monitor Traefik
+
+# version: '3.8'
+
+# services:
+#   traefik:
+#     image: traefik:v3.1
+#     container_name: traefik
+#     command:
+#       - "--api.dashboard=true"
+#       - "--providers.docker=true"
+#       - "--providers.docker.exposedbydefault=false"
+#       - "--entrypoints.web.address=:80"
+#       - "--entrypoints.websecure.address=:443"
+#       - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+#       - "--certificatesresolvers.letsencrypt.acme.email=admin@snvs.dpdns.org"
+#       - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+#       - "--log.level=INFO"
+#       - "--accesslog=true"
+#     ports:
+#       - "80:80"
+#       - "443:443"
+#     volumes:
+#       - /var/run/docker.sock:/var/run/docker.sock:ro
+#       - ./letsencrypt:/letsencrypt
+#     networks:
+#       - traefik-net
+#     restart: unless-stopped
+#     labels:
+#       - "traefik.enable=true"
+#       - "traefik.http.routers.traefik.rule=Host(`traefik.snvs.dpdns.org`)"
+#       - "traefik.http.routers.traefik.entrypoints=websecure"
+#       - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
+#       - "traefik.http.routers.traefik.service=api@internal"
+#       - "traefik.http.routers.traefik.middlewares=traefik-auth"
+#       - "traefik.http.middlewares.traefik-auth.basicauth.users=${TRAEFIK_BASIC_AUTH}"
