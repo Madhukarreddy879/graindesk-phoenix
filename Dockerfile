@@ -19,15 +19,28 @@ RUN addgroup -g 1000 -S app && \
 COPY mix.exs mix.lock ./
 COPY config config
 
-# Install dependencies
-RUN mix deps.get --only prod
-RUN mkdir config/prod.secret.exs
+# Install all dependencies (including dev for asset compilation)
+RUN mix deps.get
+
+# Copy assets
+COPY assets/package.json assets/package-lock.json ./assets/
+RUN npm --prefix ./assets ci
 
 # Copy source code
 COPY . .
 
-# Install and compile assets
+# Install and compile assets (needs dev deps for tailwind/esbuild)
 RUN mix assets.deploy
+
+# Clean up dev dependencies and keep only production ones
+RUN mix deps.clean --unused --only prod
+RUN mix deps.get --only prod
+RUN mkdir config/prod.secret.exs
+
+# Install only production dependencies
+RUN mix deps.clean --unused
+RUN mix deps.get --only prod
+RUN mkdir config/prod.secret.exs
 
 # Compile the application
 RUN mix compile --force
