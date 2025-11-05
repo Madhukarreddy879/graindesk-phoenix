@@ -63,6 +63,7 @@ RUN apt-get update && apt-get install -y \
     libgcc-s1 \
     ca-certificates \
     curl \
+    wkhtmltopdf \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/app
