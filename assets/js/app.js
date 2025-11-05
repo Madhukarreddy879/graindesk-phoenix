@@ -22,7 +22,7 @@ import "phoenix_html"
 // Establish Phoenix Socket and LiveView configuration.
 import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
-import {hooks as colocatedHooks} from "phoenix-colocated/rice_mill"
+// import {hooks as colocatedHooks} from "phoenix-colocated/rice_mill"
 import topbar from "../vendor/topbar"
 import Chart from "chart.js/auto"
 import LineChartHook from "./hooks/line_chart_hook"
@@ -35,7 +35,6 @@ const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
   params: {_csrf_token: csrfToken},
   hooks: {
-    ...colocatedHooks,
     LineChart: LineChartHook,
     BarChart: BarChartHook,
     Sortable: SortableHook,
