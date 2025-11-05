@@ -35,7 +35,6 @@ RUN mix assets.deploy
 # Clean up dev dependencies and keep only production ones
 RUN mix deps.clean --unused --only prod
 RUN mix deps.get --only prod
-RUN mkdir config/prod.secret.exs
 
 # Install only production dependencies
 RUN mix deps.clean --unused
