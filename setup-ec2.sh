@@ -45,7 +45,7 @@ mkdir -p $APP_DIR/{letsencrypt,backups,uploads,logs}
 if [ -d "$APP_DIR/.git" ]; then
     echo "📥 Updating existing repository..."
     cd $APP_DIR
-    git pull origin main
+    git pull origin master
 else
     echo "📥 Cloning repository..."
     git clone https://github.com/your-username/rice-mill-inventory.git $APP_DIR

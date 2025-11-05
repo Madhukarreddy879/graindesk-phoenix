@@ -33,7 +33,7 @@ docker-compose -f docker-compose.prod.yml down || true
 
 # Pull latest changes
 echo "📥 Pulling latest changes..."
-git pull origin main
+git pull origin master
 
 # Build and start containers
 echo "🔨 Building and starting containers..."
