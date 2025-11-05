@@ -31,7 +31,7 @@ sudo usermod -aG docker $USER
 
 # Install other utilities
 echo "🔧 Installing utilities..."
-sudo apt install -y git curl htop nginx-cert-utils apache2-utils
+sudo apt install -y git curl htop apache2-utils
 
 # Create application directory
 APP_DIR="/opt/rice-mill-inventory"
