@@ -49,7 +49,7 @@ RUN mix release --path /opt/app
 FROM alpine:3.19 AS app
 
 # Install runtime dependencies
-RUN apk add --no-cache openssl ncurses-libs postgresql-client
+RUN apk add --no-cache openssl ncurses-libs postgresql-client libstdc++ libgcc
 
 WORKDIR /opt/app
 
