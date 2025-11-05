@@ -35,13 +35,10 @@ RUN mix assets.deploy
 # Clean up dev dependencies and keep only production ones
 RUN mix deps.clean --unused --only prod
 RUN mix deps.get --only prod
-
-# Install only production dependencies
-RUN mix deps.clean --unused
-RUN mix deps.get --only prod
 RUN mkdir config/prod.secret.exs
 
-# Compile the application
+# Compile the application in production mode
+ENV MIX_ENV=prod
 RUN mix compile --force
 
 # Prepare release
