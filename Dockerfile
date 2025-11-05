@@ -23,7 +23,12 @@ RUN groupadd -r app -g 1000 && \
 
 # Copy mix files
 COPY mix.exs mix.lock ./
-COPY config config
+
+# Copy config files explicitly
+COPY config/ config/
+
+# Verify config files were copied
+RUN ls -la config/ && echo "Config files copied successfully"
 
 # Install all dependencies (including dev for asset compilation)
 RUN mix deps.get
