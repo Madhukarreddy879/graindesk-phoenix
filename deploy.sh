@@ -45,8 +45,11 @@ sleep 10
 
 # Run database migrations
 echo "🗄️ Running database migrations..."
-docker-compose -f docker-compose.prod.yml exec app bin/rice_mill eval "RiceMill.Repo.__adapter__.storage_up(RiceMill.Repo.config())"
 docker-compose -f docker-compose.prod.yml exec app bin/rice_mill eval "RiceMill.Release.migrate"
+
+# Run database seeds (creates super admin)
+echo "🌱 Running database seeds..."
+docker-compose -f docker-compose.prod.yml exec app bin/rice_mill eval "RiceMill.Release.seed"
 
 # Wait for application to be healthy
 echo "🏥 Waiting for application to be healthy..."

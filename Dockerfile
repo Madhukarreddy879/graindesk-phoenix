@@ -23,16 +23,11 @@ COPY config config
 RUN mix deps.get --only prod
 RUN mkdir config/prod.secret.exs
 
-# Copy assets
-COPY assets/package.json assets/package-lock.json ./assets/
-RUN npm --prefix ./assets ci
-
 # Copy source code
 COPY . .
 
-# Compile assets
-RUN npm run --prefix ./assets deploy
-RUN mix phx.digest
+# Install and compile assets
+RUN mix assets.deploy
 
 # Compile the application
 RUN mix compile --force
