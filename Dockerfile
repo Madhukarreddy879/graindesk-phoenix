@@ -56,7 +56,6 @@ FROM ubuntu:22.04 AS app
 
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y \
-    tzdata \
     openssl \
     libncurses5 \
     postgresql-client \
@@ -64,7 +63,6 @@ RUN apt-get update && apt-get install -y \
     libgcc-s1 \
     ca-certificates \
     curl \
-    wkhtmltopdf \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/app
@@ -82,8 +80,6 @@ USER app
 ENV PORT=4000
 ENV ECTO_IPV6=false
 ENV ECTO_POOL_SIZE=10
-ENV DEBIAN_FRONTEND=noninteractive
-ENV TZ=UTC
 
 # Expose port
 EXPOSE 4000
