@@ -24,7 +24,7 @@ services:
     restart: unless-stopped
 
   db:
-    image: postgres:15-alpine
+    image: postgres:15
     container_name: rice_mill_db
     environment:
       POSTGRES_DB: rice_mill_inventory_prod

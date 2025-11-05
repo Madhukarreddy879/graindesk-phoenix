@@ -67,6 +67,16 @@ for i in {1..30}; do
     sleep 2
 done
 
+# Test network connectivity between containers
+echo "🔗 Testing network connectivity..."
+if docker-compose -f docker-compose.prod.yml exec app ping -c 3 db > /dev/null 2>&1; then
+    echo "✅ App can reach database"
+else
+    echo "❌ App cannot reach database"
+    docker-compose -f docker-compose.prod.yml logs app
+    exit 1
+fi
+
 # Show status
 echo "📊 Deployment status:"
 docker-compose -f docker-compose.prod.yml ps
