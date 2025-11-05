@@ -73,6 +73,7 @@ services:
       - "traefik.http.routers.rice_mill_http.entrypoints=web"
       - "traefik.http.routers.rice_mill_http.middlewares=https-redirect"
       - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.services.rice_mill.loadbalancer.server.port=4000"
     volumes:
       - ./uploads:/app/uploads
       - ./logs:/app/logs
