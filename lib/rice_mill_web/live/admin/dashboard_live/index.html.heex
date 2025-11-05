@@ -1,0 +1,176 @@
+<div class="px-4 sm:px-6 lg:px-8 py-8">
+  <div class="max-w-7xl mx-auto">
+    <%!-- Header --%>
+    <div class="mb-8">
+      <h1 class="text-4xl font-bold text-gray-900 tracking-tight">Dashboard</h1>
+      <p class="mt-2 text-sm text-gray-600">Overview of your system</p>
+    </div>
+
+    <%!-- Stats Grid --%>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <%!-- Total Tenants --%>
+      <div class="bg-white rounded-lg shadow-sm p-6 border-l-4 border-indigo-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Total Tenants</p>
+            <p class="text-3xl font-bold text-gray-900 mt-2">{@stats.total_tenants}</p>
+          </div>
+          <div class="p-3 bg-indigo-100 rounded-full">
+            <.icon name="hero-building-office-2" class="h-8 w-8 text-indigo-600" />
+          </div>
+        </div>
+      </div>
+
+      <%!-- Active Tenants --%>
+      <div class="bg-white rounded-lg shadow-sm p-6 border-l-4 border-green-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Active Tenants</p>
+            <p class="text-3xl font-bold text-gray-900 mt-2">{@stats.active_tenants}</p>
+          </div>
+          <div class="p-3 bg-green-100 rounded-full">
+            <.icon name="hero-check-circle" class="h-8 w-8 text-green-600" />
+          </div>
+        </div>
+      </div>
+
+      <%!-- Inactive Tenants --%>
+      <div class="bg-white rounded-lg shadow-sm p-6 border-l-4 border-red-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Inactive Tenants</p>
+            <p class="text-3xl font-bold text-gray-900 mt-2">{@stats.inactive_tenants}</p>
+          </div>
+          <div class="p-3 bg-red-100 rounded-full">
+            <.icon name="hero-x-circle" class="h-8 w-8 text-red-600" />
+          </div>
+        </div>
+      </div>
+
+      <%!-- Total Users --%>
+      <div class="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Total Users</p>
+            <p class="text-3xl font-bold text-gray-900 mt-2">{@stats.total_users}</p>
+          </div>
+          <div class="p-3 bg-blue-100 rounded-full">
+            <.icon name="hero-user-group" class="h-8 w-8 text-blue-600" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%!-- Quick Actions --%>
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <.link
+          navigate={~p"/admin/tenants"}
+          class="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-150 group"
+        >
+          <div class="p-2 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
+            <.icon name="hero-building-office-2" class="h-6 w-6 text-indigo-600" />
+          </div>
+          <div>
+            <p class="font-medium text-gray-900">Manage Tenants</p>
+            <p class="text-sm text-gray-500">View all tenants</p>
+          </div>
+        </.link>
+
+        <.link
+          navigate={~p"/admin/tenants/new"}
+          class="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-green-500 hover:bg-green-50 transition-all duration-150 group"
+        >
+          <div class="p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
+            <.icon name="hero-plus-circle" class="h-6 w-6 text-green-600" />
+          </div>
+          <div>
+            <p class="font-medium text-gray-900">Create Tenant</p>
+            <p class="text-sm text-gray-500">Add new tenant</p>
+          </div>
+        </.link>
+
+        <.link
+          navigate={~p"/admin/users"}
+          class="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all duration-150 group"
+        >
+          <div class="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
+            <.icon name="hero-user-group" class="h-6 w-6 text-blue-600" />
+          </div>
+          <div>
+            <p class="font-medium text-gray-900">Manage Users</p>
+            <p class="text-sm text-gray-500">View all users</p>
+          </div>
+        </.link>
+
+        <.link
+          navigate={~p"/admin/audit-logs"}
+          class="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-all duration-150 group"
+        >
+          <div class="p-2 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
+            <.icon name="hero-document-text" class="h-6 w-6 text-purple-600" />
+          </div>
+          <div>
+            <p class="font-medium text-gray-900">Audit Logs</p>
+            <p class="text-sm text-gray-500">View activity</p>
+          </div>
+        </.link>
+      </div>
+    </div>
+
+    <%!-- Recent Tenants --%>
+    <div class="bg-white rounded-lg shadow-sm p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold text-gray-900">Recent Tenants</h2>
+        <.link
+          navigate={~p"/admin/tenants"}
+          class="text-sm font-medium text-indigo-600 hover:text-indigo-700"
+        >
+          View all →
+        </.link>
+      </div>
+
+      <%= if @stats.recent_tenants == [] do %>
+        <div class="text-center py-8">
+          <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 mb-3">
+            <.icon name="hero-building-office-2" class="h-6 w-6 text-gray-400" />
+          </div>
+          <p class="text-sm text-gray-500">No tenants yet</p>
+        </div>
+      <% else %>
+        <div class="space-y-3">
+          <div
+            :for={tenant <- @stats.recent_tenants}
+            class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <div class="flex items-center gap-4 flex-1">
+              <div class="p-2 bg-gray-100 rounded-lg">
+                <.icon name="hero-building-office-2" class="h-5 w-5 text-gray-600" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="font-medium text-gray-900 truncate">{tenant.name}</p>
+                <p class="text-sm text-gray-500 truncate">{tenant.slug}</p>
+              </div>
+              <span class={[
+                "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap",
+                if(tenant.active,
+                  do: "bg-green-100 text-green-800",
+                  else: "bg-red-100 text-red-800"
+                )
+              ]}>
+                {if tenant.active, do: "Active", else: "Inactive"}
+              </span>
+            </div>
+            <.link
+              navigate={~p"/admin/tenants/#{tenant}"}
+              class="ml-4 text-sm font-medium text-indigo-600 hover:text-indigo-700"
+            >
+              View
+            </.link>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

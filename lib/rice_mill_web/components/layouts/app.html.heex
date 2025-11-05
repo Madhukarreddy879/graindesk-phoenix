@@ -1,0 +1,253 @@
+<div class="flex h-screen bg-gray-50 dark:bg-gray-900">
+  <!-- Sidebar -->
+  <aside
+    id="sidebar"
+    class="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col transition-all duration-300"
+    phx-hook="Sidebar"
+  >
+    <!-- Logo and Tenant Name -->
+    <div class="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-700">
+      <div class="flex flex-col min-w-0 flex-1">
+        <.link navigate={~p"/"} class="text-xl font-bold text-blue-600 dark:text-blue-400">
+          Rice Mill
+        </.link>
+        <span
+          :if={assigns[:current_tenant] && tenant_name(assigns[:current_tenant])}
+          class="text-xs text-gray-500 dark:text-gray-400 truncate nav-text"
+        >
+          {tenant_name(assigns[:current_tenant])}
+        </span>
+      </div>
+      <button
+        id="sidebar-toggle"
+        phx-click={
+          JS.toggle_class("w-64", to: "#sidebar")
+          |> JS.toggle_class("w-16", to: "#sidebar")
+          |> JS.toggle_class("hidden", to: ".nav-text")
+        }
+        class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 flex-shrink-0 transition-colors"
+      >
+        <.icon name="hero-bars-3" class="size-5 text-gray-600 dark:text-gray-300" />
+      </button>
+    </div>
+    <!-- Navigation Links -->
+    <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+      <!-- Inventory Section -->
+      <div
+        :if={
+          Authorization.can_manage_inventory?(@current_scope) ||
+            Authorization.can_view_reports?(@current_scope)
+        }
+        class="nav-text px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+      >
+        Inventory
+      </div>
+      <.nav_link
+        :if={
+          Authorization.can_manage_inventory?(@current_scope) ||
+            Authorization.can_view_reports?(@current_scope)
+        }
+        navigate={~p"/dashboard"}
+        current_path={@current_path}
+        icon="hero-squares-2x2"
+      >
+        Dashboard
+      </.nav_link>
+      <.nav_link
+        :if={Authorization.can_manage_inventory?(@current_scope)}
+        navigate={~p"/products"}
+        current_path={@current_path}
+        icon="hero-cube"
+      >
+        Products
+      </.nav_link>
+      <.nav_link
+        :if={Authorization.can_manage_inventory?(@current_scope)}
+        navigate={~p"/stock-ins"}
+        current_path={@current_path}
+        icon="hero-arrow-down-tray"
+      >
+        Stock-In
+      </.nav_link>
+      <.nav_link
+        :if={Authorization.can_manage_inventory?(@current_scope)}
+        navigate={~p"/stock-outs"}
+        current_path={@current_path}
+        icon="hero-arrow-up-tray"
+      >
+        Stock-Out
+      </.nav_link>
+      
+<!-- Reports Section -->
+      <div
+        :if={Authorization.can_view_reports?(@current_scope)}
+        class="nav-text px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-4"
+      >
+        Reports
+      </div>
+      <.nav_link
+        :if={Authorization.can_view_reports?(@current_scope)}
+        navigate={~p"/reports"}
+        current_path={@current_path}
+        icon="hero-chart-bar"
+      >
+        Reports
+      </.nav_link>
+      
+<!-- Admin Section (Super Admin) -->
+      <div
+        :if={Authorization.super_admin?(@current_scope)}
+        class="nav-text px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-4"
+      >
+        Administration
+      </div>
+      <.nav_link
+        :if={Authorization.super_admin?(@current_scope)}
+        navigate={~p"/admin/dashboard"}
+        current_path={@current_path}
+        icon="hero-squares-2x2"
+      >
+        Dashboard
+      </.nav_link>
+      <.nav_link
+        :if={Authorization.can_manage_tenants?(@current_scope)}
+        navigate={~p"/admin/tenants"}
+        current_path={@current_path}
+        icon="hero-building-office"
+      >
+        Tenants
+      </.nav_link>
+      <.nav_link
+        :if={Authorization.super_admin?(@current_scope)}
+        navigate={~p"/admin/users"}
+        current_path={@current_path}
+        icon="hero-users"
+      >
+        All Users
+      </.nav_link>
+      <.nav_link
+        :if={Authorization.super_admin?(@current_scope)}
+        navigate={~p"/admin/audit-logs"}
+        current_path={@current_path}
+        icon="hero-document-text"
+      >
+        Audit Logs
+      </.nav_link>
+      
+<!-- User Management Section (Company Admin) -->
+      <div
+        :if={Authorization.company_admin?(@current_scope)}
+        class="nav-text px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-4"
+      >
+        User Management
+      </div>
+      <.nav_link
+        :if={Authorization.company_admin?(@current_scope)}
+        navigate={~p"/users/manage"}
+        current_path={@current_path}
+        icon="hero-users"
+      >
+        Manage Users
+      </.nav_link>
+      <.nav_link
+        :if={Authorization.company_admin?(@current_scope)}
+        navigate={~p"/users/manage/audit-logs"}
+        current_path={@current_path}
+        icon="hero-document-text"
+      >
+        Audit Logs
+      </.nav_link>
+      
+<!-- Settings Section -->
+      <div
+        :if={
+          Authorization.super_admin?(@current_scope) ||
+            Authorization.company_admin?(@current_scope)
+        }
+        class="nav-text px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-4"
+      >
+        Settings
+      </div>
+      <.nav_link
+        :if={Authorization.can?(@current_scope, :manage_tenant_settings, nil)}
+        navigate={~p"/settings/tenant"}
+        current_path={@current_path}
+        icon="hero-cog-6-tooth"
+      >
+        Tenant Settings
+      </.nav_link>
+    </nav>
+    <!-- User Section -->
+    <div class="border-t border-gray-200 dark:border-gray-700 p-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center min-w-0 flex-1">
+          <.icon
+            name="hero-user-circle"
+            class="size-8 text-gray-400 dark:text-gray-500 flex-shrink-0"
+          />
+          <div class="ml-3 nav-text min-w-0">
+            <p class="text-sm font-medium text-gray-700 dark:text-gray-200 truncate">
+              {@current_scope.user.email}
+            </p>
+            <div class="flex items-center gap-2 mt-1">
+              <span class={[
+                "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium",
+                @current_scope.user.role == :super_admin &&
+                  "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
+                @current_scope.user.role == :company_admin &&
+                  "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+                @current_scope.user.role == :operator &&
+                  "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+                @current_scope.user.role == :viewer &&
+                  "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+              ]}>
+                {role_display(@current_scope.user.role)}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <.link
+        navigate={~p"/users/profile"}
+        class="mt-3 w-full inline-flex items-center justify-center px-3 py-2 text-sm font-semibold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+      >
+        <.icon name="hero-user" class="size-5 mr-2" />
+        <span class="nav-text">My Profile</span>
+      </.link>
+      <.link
+        href={~p"/users/log-out"}
+        method="delete"
+        class="mt-2 w-full inline-flex items-center justify-center px-3 py-2 text-sm font-semibold text-white bg-red-600 dark:bg-red-700 rounded-md hover:bg-red-500 dark:hover:bg-red-600 transition-colors"
+      >
+        <.icon name="hero-arrow-right-on-rectangle" class="size-5 mr-2" />
+        <span class="nav-text">Logout</span>
+      </.link>
+    </div>
+  </aside>
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <!-- Top Bar -->
+    <header class="h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-6">
+      <div class="flex items-center gap-4">
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-white">
+          {assigns[:page_title] || "Dashboard"}
+        </h1>
+        <span
+          :if={assigns[:current_tenant] && tenant_name(assigns[:current_tenant])}
+          class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-200 border border-blue-200 dark:border-blue-700"
+        >
+          <.icon name="hero-building-office" class="size-4 mr-1.5" />
+          {tenant_name(assigns[:current_tenant])}
+        </span>
+      </div>
+      <div class="flex items-center gap-3">
+        <Layouts.theme_toggle />
+      </div>
+    </header>
+    <!-- Content Area -->
+    <main class="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900">
+      <.flash_group flash={@flash} />
+      {@inner_content}
+    </main>
+  </div>
+</div>

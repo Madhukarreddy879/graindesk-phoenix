@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: rice_mill_inventory_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: rice_mill_inventory_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - rice_mill_network
+
+volumes:
+  postgres_data:
+
+networks:
+  rice_mill_network:
+    driver: bridge

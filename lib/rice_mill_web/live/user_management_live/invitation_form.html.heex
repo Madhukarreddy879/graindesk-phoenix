@@ -1,0 +1,128 @@
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="sm:flex sm:items-center">
+    <div class="sm:flex-auto">
+      <h1 class="text-3xl font-bold text-gray-900">Invite User</h1>
+      <p class="mt-2 text-sm text-gray-700">
+        Send an invitation email to a new user to join your organization.
+      </p>
+    </div>
+  </div>
+
+  <div class="mt-8 bg-white shadow rounded-lg p-6">
+    <.form
+      for={@form}
+      id="invitation-form"
+      phx-change="validate"
+      phx-submit="send"
+    >
+      <div class="space-y-6">
+        <div>
+          <.input
+            field={@form[:email]}
+            type="email"
+            label="Email Address"
+            placeholder="user@example.com"
+            required
+          />
+          <p class="mt-1 text-sm text-gray-500">
+            The user will receive an invitation email at this address.
+          </p>
+        </div>
+
+        <div>
+          <.input
+            field={@form[:role]}
+            type="select"
+            label="Role"
+            options={[
+              {"Select a role...", ""},
+              {"Operator - Can manage inventory", :operator},
+              {"Viewer - Read-only access", :viewer}
+            ]}
+            required
+          />
+          <p class="mt-1 text-sm text-gray-500">
+            Operators can create and edit products and stock-in entries. Viewers can only view reports.
+          </p>
+          <div class="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+            <p class="text-sm text-yellow-800">
+              <span class="font-medium">Note:</span>
+              You can only invite users with Operator or Viewer roles.
+              Company Admin and Super Admin roles cannot be assigned through invitations.
+            </p>
+          </div>
+        </div>
+
+        <div class="border-t border-gray-200 pt-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Invitation Email Preview</h3>
+
+          <%= if @show_preview do %>
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <div class="space-y-3">
+                <div>
+                  <p class="text-sm font-medium text-gray-700">To:</p>
+                  <p class="text-sm text-gray-900">{@form[:email].value}</p>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-gray-700">Subject:</p>
+                  <p class="text-sm text-gray-900">
+                    User Invitation - Rice Mill Inventory System
+                  </p>
+                </div>
+                <div class="border-t border-gray-300 pt-3">
+                  <p class="text-sm font-medium text-gray-700 mb-2">Message:</p>
+                  <div class="text-sm text-gray-900 space-y-2">
+                    <p>Hello,</p>
+                    <p>
+                      You have been invited to join the Rice Mill Inventory System as a <span class="font-semibold"><%= Phoenix.Naming.humanize(@form[:role].value) %></span>.
+                    </p>
+                    <p>
+                      To accept this invitation and create your account, please visit the following URL:
+                    </p>
+                    <p class="font-mono text-xs bg-white p-2 rounded border border-gray-300 break-all">
+                      {@invitation_url}
+                    </p>
+                    <p class="text-gray-600">This invitation will expire in 7 days.</p>
+                    <p>If you did not expect this invitation, please ignore this email.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% else %>
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <p class="text-sm text-gray-500 text-center">
+                Fill in the form above and click "Preview Email" to see what the invitation will look like.
+              </p>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="flex justify-between items-center pt-6 border-t border-gray-200">
+          <.link
+            navigate={~p"/users/manage"}
+            class="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+          >
+            Cancel
+          </.link>
+
+          <div class="flex space-x-3">
+            <.button
+              type="button"
+              phx-click="preview"
+              class="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            >
+              Preview Email
+            </.button>
+            <.button
+              type="submit"
+              phx-disable-with="Sending..."
+              class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            >
+              Send Invitation
+            </.button>
+          </div>
+        </div>
+      </div>
+    </.form>
+  </div>
+</div>

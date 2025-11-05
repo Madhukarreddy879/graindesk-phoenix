@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Report</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        font-size: 12px;
+        line-height: 1.5;
+        color: #1f2937;
+        padding: 20px;
+      }
+
+      .header {
+        border-bottom: 3px solid #3b82f6;
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+      }
+
+      .header h1 {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 5px;
+      }
+
+      .header .subtitle {
+        font-size: 14px;
+        color: #6b7280;
+      }
+
+      .meta-info {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        padding: 10px;
+        background-color: #f3f4f6;
+        border-radius: 4px;
+      }
+
+      .meta-info div {
+        flex: 1;
+      }
+
+      .meta-info .label {
+        font-size: 10px;
+        color: #6b7280;
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-bottom: 2px;
+      }
+
+      .meta-info .value {
+        font-size: 12px;
+        color: #1f2937;
+        font-weight: 500;
+      }
+
+      .section {
+        margin-bottom: 25px;
+        page-break-inside: avoid;
+      }
+
+      .section-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 10px;
+        padding-bottom: 5px;
+        border-bottom: 2px solid #e5e7eb;
+      }
+
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin-bottom: 15px;
+      }
+
+      .metric-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 4px;
+        padding: 12px;
+        background-color: #ffffff;
+      }
+
+      .metric-label {
+        font-size: 10px;
+        color: #6b7280;
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .metric-value {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1f2937;
+      }
+
+      .metric-unit {
+        font-size: 11px;
+        color: #6b7280;
+        font-weight: 400;
+      }
+
+      .metric-subtext {
+        font-size: 10px;
+        color: #6b7280;
+        margin-top: 4px;
+      }
+
+      .positive {
+        color: #10b981;
+      }
+
+      .negative {
+        color: #ef4444;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+
+      table thead {
+        background-color: #f9fafb;
+      }
+
+      table th {
+        padding: 8px;
+        text-align: left;
+        font-size: 10px;
+        font-weight: 600;
+        color: #6b7280;
+        text-transform: uppercase;
+        border-bottom: 2px solid #e5e7eb;
+      }
+
+      table th.text-right {
+        text-align: right;
+      }
+
+      table td {
+        padding: 8px;
+        font-size: 11px;
+        color: #1f2937;
+        border-bottom: 1px solid #f3f4f6;
+      }
+
+      table td.text-right {
+        text-align: right;
+      }
+
+      table tbody tr:hover {
+        background-color: #f9fafb;
+      }
+
+      .alert-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 10px;
+        font-weight: 600;
+      }
+
+      .alert-badge.low {
+        background-color: #fef3c7;
+        color: #92400e;
+      }
+
+      .alert-badge.out {
+        background-color: #fee2e2;
+        color: #991b1b;
+      }
+
+      .footer {
+        margin-top: 30px;
+        padding-top: 15px;
+        border-top: 1px solid #e5e7eb;
+        text-align: center;
+        font-size: 10px;
+        color: #9ca3af;
+      }
+
+      .two-column {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+
+      @media print {
+        body {
+          padding: 10px;
+        }
+        
+        .section {
+          page-break-inside: avoid;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <%!-- Header --%>
+    <div class="header">
+      <h1>Dashboard Report</h1>
+      <div class="subtitle">{@tenant_name}</div>
+    </div>
+
+    <%!-- Meta Information --%>
+    <div class="meta-info">
+      <div>
+        <div class="label">Report Period</div>
+        <div class="value">{format_period(@time_period)}</div>
+      </div>
+      <div>
+        <div class="label">Generated On</div>
+        <div class="value">{format_datetime(@generated_at)}</div>
+      </div>
+      <div>
+        <div class="label">Date Range</div>
+        <div class="value">{format_date(@date_range_start)} - {format_date(@date_range_end)}</div>
+      </div>
+    </div>
+
+    <%!-- Inventory Summary --%>
+    <div class="section">
+      <h2 class="section-title">Inventory Summary</h2>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-label">Total Stock</div>
+          <div class="metric-value">
+            {format_number(@inventory_metrics.total_stock)}
+            <span class="metric-unit">quintals</span>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Products</div>
+          <div class="metric-value">{@inventory_metrics.product_count}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Total Value</div>
+          <div class="metric-value">
+            ₹{format_number(@inventory_metrics.total_value)}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%!-- Financial Metrics (if visible) --%>
+    <%= if @can_view_financial do %>
+      <div class="section">
+        <h2 class="section-title">Financial Metrics</h2>
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">Total Purchases</div>
+            <div class="metric-value">₹{format_number(@financial_metrics.total_purchases)}</div>
+            <div class="metric-subtext">{@financial_metrics.purchase_count} transactions</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Total Sales</div>
+            <div class="metric-value">₹{format_number(@financial_metrics.total_sales)}</div>
+            <div class="metric-subtext">{@financial_metrics.sales_count} transactions</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Gross Margin</div>
+            <div class={"metric-value #{if @financial_metrics.gross_margin >= 0, do: "positive", else: "negative"}"}>
+              ₹{format_number(@financial_metrics.gross_margin)}
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <%!-- Performance Comparison --%>
+    <div class="section">
+      <h2 class="section-title">Performance Comparison</h2>
+      <div class="two-column">
+        <div class="metric-card">
+          <div class="metric-label">Stock-In Volume</div>
+          <div class="metric-value">
+            {format_number(@performance_comparison.current_stock_in)}
+            <span class="metric-unit">quintals</span>
+          </div>
+          <div class={"metric-subtext #{if @performance_comparison.stock_in_change >= 0, do: "positive", else: "negative"}"}>
+            {if @performance_comparison.stock_in_change >= 0, do: "+", else: ""}{format_percentage(
+              @performance_comparison.stock_in_change
+            )}% vs previous period
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Stock-Out Volume</div>
+          <div class="metric-value">
+            {format_number(@performance_comparison.current_stock_out)}
+            <span class="metric-unit">quintals</span>
+          </div>
+          <div class={"metric-subtext #{if @performance_comparison.stock_out_change >= 0, do: "positive", else: "negative"}"}>
+            {if @performance_comparison.stock_out_change >= 0, do: "+", else: ""}{format_percentage(
+              @performance_comparison.stock_out_change
+            )}% vs previous period
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%!-- Stock Alerts --%>
+    <%= if length(@stock_alerts) > 0 do %>
+      <div class="section">
+        <h2 class="section-title">Stock Alerts ({length(@stock_alerts)})</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Product Name</th>
+              <th class="text-right">Current Stock</th>
+              <th class="text-right">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <%= for alert <- @stock_alerts do %>
+              <tr>
+                <td>{alert.product_name}</td>
+                <td class="text-right">{format_number(alert.current_stock)} quintals</td>
+                <td class="text-right">
+                  <span class={"alert-badge #{if alert.severity == :out_of_stock, do: "out", else: "low"}"}>
+                    {if alert.severity == :out_of_stock, do: "Out of Stock", else: "Low Stock"}
+                  </span>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+
+    <%!-- Top Products --%>
+    <div class="section">
+      <h2 class="section-title">Top Products by Stock-In</h2>
+      <%= if length(@top_products.stock_in) > 0 do %>
+        <table>
+          <thead>
+            <tr>
+              <th>Product Name</th>
+              <th class="text-right">Quantity</th>
+              <th class="text-right">Percentage</th>
+            </tr>
+          </thead>
+          <tbody>
+            <%= for product <- @top_products.stock_in do %>
+              <tr>
+                <td>{product.product_name}</td>
+                <td class="text-right">{format_number(product.quantity)} quintals</td>
+                <td class="text-right">{product.percentage}%</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p style="text-align: center; color: #9ca3af; padding: 20px;">No data available</p>
+      <% end %>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Top Products by Stock-Out</h2>
+      <%= if length(@top_products.stock_out) > 0 do %>
+        <table>
+          <thead>
+            <tr>
+              <th>Product Name</th>
+              <th class="text-right">Quantity</th>
+              <th class="text-right">Percentage</th>
+            </tr>
+          </thead>
+          <tbody>
+            <%= for product <- @top_products.stock_out do %>
+              <tr>
+                <td>{product.product_name}</td>
+                <td class="text-right">{format_number(product.quantity)} quintals</td>
+                <td class="text-right">{product.percentage}%</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p style="text-align: center; color: #9ca3af; padding: 20px;">No data available</p>
+      <% end %>
+    </div>
+
+    <%!-- Top Farmers (if visible) --%>
+    <%= if @can_view_financial and length(@top_farmers) > 0 do %>
+      <div class="section">
+        <h2 class="section-title">Top Farmers</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Farmer Name</th>
+              <th class="text-right">Quantity</th>
+              <th class="text-right">Amount</th>
+              <th class="text-right">Transactions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <%= for farmer <- @top_farmers do %>
+              <tr>
+                <td>{farmer.farmer_name}</td>
+                <td class="text-right">{format_number(farmer.total_quantity)} quintals</td>
+                <td class="text-right">₹{format_number(farmer.total_amount)}</td>
+                <td class="text-right">{farmer.transaction_count}</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+
+    <%!-- Top Customers (if visible) --%>
+    <%= if @can_view_financial and length(@top_customers) > 0 do %>
+      <div class="section">
+        <h2 class="section-title">Top Customers</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Customer Name</th>
+              <th class="text-right">Quantity</th>
+              <th class="text-right">Amount</th>
+              <th class="text-right">Transactions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <%= for customer <- @top_customers do %>
+              <tr>
+                <td>{customer.customer_name}</td>
+                <td class="text-right">{format_number(customer.total_quantity)} quintals</td>
+                <td class="text-right">₹{format_number(customer.total_amount)}</td>
+                <td class="text-right">{customer.transaction_count}</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+
+    <%!-- Footer --%>
+    <div class="footer">
+      <p>This report was automatically generated by Rice Mill Inventory Management System</p>
+      <p>© {DateTime.utc_now().year} Rice Mill. All rights reserved.</p>
+    </div>
+  </body>
+</html>

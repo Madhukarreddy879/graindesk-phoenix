@@ -1,0 +1,161 @@
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="sm:flex sm:items-center">
+    <div class="sm:flex-auto">
+      <h1 class="text-3xl font-bold text-gray-900">Tenant Settings</h1>
+      <p class="mt-2 text-sm text-gray-700">
+        Configure your organization's settings including contact information and preferences.
+      </p>
+    </div>
+  </div>
+
+  <div class="mt-8 bg-white shadow rounded-lg">
+    <.form for={@form} id="tenant_settings_form" phx-change="validate" phx-submit="save">
+      <div class="space-y-6 p-6">
+        <!-- Basic Tenant Information -->
+        <div>
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Basic Information</h3>
+
+          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div>
+              <.input
+                field={@form[:name]}
+                type="text"
+                label="Tenant Name"
+                placeholder="Enter tenant name"
+                required
+              />
+            </div>
+
+            <div>
+              <.input
+                field={@form[:slug]}
+                type="text"
+                label="Slug"
+                placeholder="tenant-slug"
+                required
+              />
+              <p class="mt-1 text-sm text-gray-500">
+                Must contain only lowercase letters, numbers, and hyphens
+              </p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 mt-4">
+            <div>
+              <.input
+                field={@form[:contact_email]}
+                type="email"
+                label="Contact Email"
+                placeholder="contact@example.com"
+              />
+            </div>
+
+            <div>
+              <.input
+                field={@form[:contact_phone]}
+                type="text"
+                label="Contact Phone"
+                placeholder="+1 (555) 123-4567"
+              />
+            </div>
+          </div>
+        </div>
+        
+<!-- Tenant Settings -->
+        <div class="border-t border-gray-200 pt-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Preferences</h3>
+
+          <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+            <div>
+              <.input
+                field={@form[:default_unit]}
+                type="select"
+                label="Default Unit"
+                options={[
+                  {"Kilograms (kg)", "kg"},
+                  {"Pounds (lbs)", "lbs"},
+                  {"Quintals", "quintal"},
+                  {"Tons", "ton"}
+                ]}
+              />
+            </div>
+
+            <div>
+              <.input
+                field={@form[:timezone]}
+                type="select"
+                label="Timezone"
+                options={[
+                  {"UTC", "UTC"},
+                  {"Eastern Time (EST/EDT)", "America/New_York"},
+                  {"Central Time (CST/CDT)", "America/Chicago"},
+                  {"Mountain Time (MST/MDT)", "America/Denver"},
+                  {"Pacific Time (PST/PDT)", "America/Los_Angeles"},
+                  {"India Standard Time (IST)", "Asia/Kolkata"},
+                  {"China Standard Time (CST)", "Asia/Shanghai"},
+                  {"Japan Standard Time (JST)", "Asia/Tokyo"},
+                  {"Greenwich Mean Time (GMT)", "Etc/GMT"}
+                ]}
+              />
+            </div>
+
+            <div>
+              <.input
+                field={@form[:date_format]}
+                type="select"
+                label="Date Format"
+                options={[
+                  {"YYYY-MM-DD (2023-12-31)", "YYYY-MM-DD"},
+                  {"MM/DD/YYYY (12/31/2023)", "MM/DD/YYYY"},
+                  {"DD/MM/YYYY (31/12/2023)", "DD/MM/YYYY"},
+                  {"DD-MM-YYYY (31-12-2023)", "DD-MM-YYYY"}
+                ]}
+              />
+            </div>
+          </div>
+        </div>
+        
+<!-- Status -->
+        <div class="border-t border-gray-200 pt-6">
+          <div class="flex items-start">
+            <div class="flex items-center h-5">
+              <.input field={@form[:active]} type="checkbox" label="" />
+            </div>
+            <div class="ml-3 text-sm">
+              <label class="font-medium text-gray-700">Active Tenant</label>
+              <p class="text-gray-500">
+                When disabled, users will not be able to access the tenant
+              </p>
+            </div>
+          </div>
+        </div>
+        
+<!-- Submit Button -->
+        <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+          <.button type="submit" phx-disable-with="Saving...">
+            Save Settings
+          </.button>
+        </div>
+      </div>
+    </.form>
+  </div>
+  
+<!-- Current Settings Display -->
+  <div class="mt-8 bg-gray-50 rounded-lg p-6">
+    <h3 class="text-lg font-medium text-gray-900 mb-4">Current Settings</h3>
+    <dl class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Default Unit</dt>
+        <dd class="mt-1 text-sm text-gray-900">{@settings["default_unit"] || "kg"}</dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Timezone</dt>
+        <dd class="mt-1 text-sm text-gray-900">{@settings["timezone"] || "UTC"}</dd>
+      </div>
+      <div class="sm:col-span-2">
+        <dt class="text-sm font-medium text-gray-500">Date Format</dt>
+        <dd class="mt-1 text-sm text-gray-900">{@settings["date_format"] || "YYYY-MM-DD"}</dd>
+      </div>
+    </dl>
+  </div>
+</div>

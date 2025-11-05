@@ -1,0 +1,196 @@
+<div class="px-4 py-8 sm:px-6 lg:px-8">
+  <div class="max-w-4xl mx-auto">
+    <!-- Page Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">My Profile</h1>
+      <p class="mt-2 text-sm text-gray-600">
+        Manage your personal information and account settings
+      </p>
+    </div>
+
+    <div class="space-y-6">
+      <!-- User Information Card -->
+      <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-200">
+          <h2 class="text-lg font-semibold text-gray-900">Account Information</h2>
+        </div>
+        <div class="px-6 py-5">
+          <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Email Address</dt>
+              <dd class="mt-1 text-sm text-gray-900">{@user.email}</dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Role</dt>
+              <dd class="mt-1">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  {format_role(@user.role)}
+                </span>
+              </dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Status</dt>
+              <dd class="mt-1">
+                <span class={[
+                  "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
+                  if(@user.status == :active,
+                    do: "bg-green-100 text-green-800",
+                    else: "bg-red-100 text-red-800"
+                  )
+                ]}>
+                  {format_status(@user.status)}
+                </span>
+              </dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Last Login</dt>
+              <dd class="mt-1 text-sm text-gray-900">{format_datetime(@user.last_login_at)}</dd>
+            </div>
+            <div :if={@user.tenant}>
+              <dt class="text-sm font-medium text-gray-500">Organization</dt>
+              <dd class="mt-1 text-sm text-gray-900">{@user.tenant.name}</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+      
+<!-- Edit Profile Form -->
+      <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-200">
+          <h2 class="text-lg font-semibold text-gray-900">Edit Profile</h2>
+        </div>
+        <div class="px-6 py-5">
+          <.form
+            for={@profile_form}
+            id="profile-form"
+            phx-change="validate_profile"
+            phx-submit="save_profile"
+          >
+            <div class="space-y-4">
+              <.input field={@profile_form[:name]} type="text" label="Full Name" />
+              <.input field={@profile_form[:contact_phone]} type="text" label="Contact Phone" />
+
+              <div class="flex justify-end">
+                <.button
+                  type="submit"
+                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Save Changes
+                </.button>
+              </div>
+            </div>
+          </.form>
+        </div>
+      </div>
+      
+<!-- Change Password Section -->
+      <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-200 flex items-center justify-between">
+          <h2 class="text-lg font-semibold text-gray-900">Change Password</h2>
+          <button
+            type="button"
+            phx-click="toggle_password_form"
+            class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            {if @show_password_form, do: "Cancel", else: "Change Password"}
+          </button>
+        </div>
+
+        <div :if={@show_password_form} class="px-6 py-5">
+          <.form
+            for={@password_form}
+            id="password-form"
+            phx-change="validate_password"
+            phx-submit="change_password"
+          >
+            <div class="space-y-4">
+              <.input
+                field={@password_form[:current_password]}
+                type="password"
+                label="Current Password"
+                required
+              />
+              <.input
+                field={@password_form[:password]}
+                type="password"
+                label="New Password"
+                required
+              />
+              <.input
+                field={@password_form[:password_confirmation]}
+                type="password"
+                label="Confirm New Password"
+                required
+              />
+
+              <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
+                <div class="flex">
+                  <div class="flex-shrink-0">
+                    <.icon name="hero-information-circle" class="size-5 text-blue-400" />
+                  </div>
+                  <div class="ml-3">
+                    <p class="text-sm text-blue-700">
+                      Password must be at least 12 characters long. After changing your password, you will be logged out and need to log in again.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex justify-end">
+                <.button
+                  type="submit"
+                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Update Password
+                </.button>
+              </div>
+            </div>
+          </.form>
+        </div>
+      </div>
+      
+<!-- Activity History -->
+      <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-200">
+          <h2 class="text-lg font-semibold text-gray-900">Recent Activity</h2>
+        </div>
+        <div class="px-6 py-5">
+          <div :if={@activity_logs == []} class="text-center py-8">
+            <.icon name="hero-clock" class="mx-auto size-12 text-gray-400" />
+            <p class="mt-2 text-sm text-gray-500">No recent activity to display</p>
+          </div>
+
+          <div :if={@activity_logs != []} class="flow-root">
+            <ul role="list" class="-mb-8">
+              <li :for={{log, index} <- Enum.with_index(@activity_logs)} class="relative pb-8">
+                <div
+                  :if={index < length(@activity_logs) - 1}
+                  class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200"
+                  aria-hidden="true"
+                >
+                </div>
+                <div class="relative flex space-x-3">
+                  <div>
+                    <span class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center ring-8 ring-white">
+                      <.icon name="hero-clock" class="size-4 text-white" />
+                    </span>
+                  </div>
+                  <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
+                    <div>
+                      <p class="text-sm text-gray-900">
+                        {format_action(log.action)}
+                      </p>
+                    </div>
+                    <div class="whitespace-nowrap text-right text-sm text-gray-500">
+                      {format_datetime(log.inserted_at)}
+                    </div>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

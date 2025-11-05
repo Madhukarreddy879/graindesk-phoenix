@@ -1,0 +1,352 @@
+<%!-- Connection Status Indicator --%>
+<.connection_status />
+  
+  <div class="min-h-screen bg-gray-50">
+    <%!-- Header Section --%>
+    <div class="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+      <div class="px-4 sm:px-6 lg:px-8 py-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <%!-- Page Title --%>
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+            <p class="mt-1 text-sm text-gray-500">Welcome back, {@current_scope.user.email}</p>
+          </div>
+
+          <%!-- Time Period Filter and Actions --%>
+          <div class="flex flex-col sm:flex-row gap-3">
+            <%!-- Time Period Dropdown --%>
+            <select
+              id="time-period-filter"
+              phx-change="change_period"
+              name="period"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="today" selected={@time_period == "today"}>Today</option>
+              <option value="this_week" selected={@time_period == "this_week"}>This Week</option>
+              <option value="this_month" selected={@time_period == "this_month"}>
+                This Month
+              </option>
+              <option value="last_month" selected={@time_period == "last_month"}>
+                Last Month
+              </option>
+              <option value="this_quarter" selected={@time_period == "this_quarter"}>
+                This Quarter
+              </option>
+              <option value="this_year" selected={@time_period == "this_year"}>This Year</option>
+            </select>
+
+            <%!-- Customize Button --%>
+            <button
+              type="button"
+              phx-click="toggle_customization"
+              class={[
+                "inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors",
+                @customization_mode && "text-white bg-blue-600 hover:bg-blue-700",
+                !@customization_mode && "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
+              ]}
+            >
+              <.icon name="hero-adjustments-horizontal" class="size-4 mr-2" />
+              {if @customization_mode, do: "Done", else: "Customize"}
+            </button>
+
+            <%!-- Reset Layout Button (only in customization mode) --%>
+            <%= if @customization_mode do %>
+              <button
+                type="button"
+                phx-click={
+                  JS.push("reset_layout")
+                  |> JS.hide(to: "#reset-confirmation-modal")
+                }
+                data-confirm="Are you sure you want to reset the dashboard layout to default? This will restore all widgets and clear your custom order."
+                class="inline-flex items-center px-4 py-2 text-sm font-medium text-red-700 bg-white border border-red-300 rounded-lg shadow-sm hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"
+              >
+                <.icon name="hero-arrow-path" class="size-4 mr-2" />
+                Reset Layout
+              </button>
+            <% end %>
+
+            <%!-- Export Button --%>
+            <a
+              href={~p"/dashboard/export?period=#{@time_period}"}
+              target="_blank"
+              class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+            >
+              <.icon name="hero-arrow-down-tray" class="size-4 mr-2" /> Export PDF
+            </a>
+          </div>
+        </div>
+
+        <%!-- Quick Action Buttons (only for company_admin and operator) --%>
+        <%= if @can_perform_actions do %>
+          <div class="mt-4 flex flex-wrap gap-3">
+            <.link
+              navigate={~p"/stock-ins/new"}
+              class="inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-green-600 rounded-lg shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors"
+            >
+              <.icon name="hero-plus" class="size-4 mr-2" /> New Stock-In
+            </.link>
+
+            <.link
+              navigate={~p"/stock-outs/new"}
+              class="inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"
+            >
+              <.icon name="hero-minus" class="size-4 mr-2" /> New Stock-Out
+            </.link>
+
+            <.link
+              navigate={~p"/reports"}
+              class="inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+            >
+              <.icon name="hero-chart-bar" class="size-4 mr-2" /> View Reports
+            </.link>
+
+            <.link
+              navigate={~p"/products"}
+              class="inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+            >
+              <.icon name="hero-cube" class="size-4 mr-2" /> Manage Products
+            </.link>
+          </div>
+        <% else %>
+          <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <p class="text-sm text-blue-700">
+              <.icon name="hero-information-circle" class="size-4 inline mr-1" />
+              You have view-only access to the dashboard. Contact your administrator to perform actions.
+            </p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <%!-- Main Content --%>
+    <div class="px-4 sm:px-6 lg:px-8 py-6">
+      <%= if @loading do %>
+        <%!-- Loading Skeleton --%>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          <%!-- Inventory Summary Skeleton --%>
+          <.skeleton_widget />
+          
+          <%!-- Financial Metrics Skeleton --%>
+          <%= if @can_view_financial do %>
+            <.skeleton_widget />
+          <% end %>
+          
+          <%!-- Stock Alerts Skeleton --%>
+          <.skeleton_widget />
+          
+          <%!-- Performance Comparison Skeleton (full width) --%>
+          <.skeleton_widget class="md:col-span-2 lg:col-span-3" />
+          
+          <%!-- Stock Movement Chart Skeleton (full width) --%>
+          <.skeleton_chart class="md:col-span-2 lg:col-span-3" />
+          
+          <%!-- Top Products Skeleton --%>
+          <.skeleton_table rows={5} />
+          
+          <%!-- Recent Transactions Skeleton --%>
+          <.skeleton_table rows={5} />
+          
+          <%!-- Farmer Activity Skeleton --%>
+          <%= if @can_view_financial do %>
+            <.skeleton_table rows={5} />
+          <% end %>
+          
+          <%!-- Customer Activity Skeleton --%>
+          <%= if @can_view_financial do %>
+            <.skeleton_table rows={5} />
+          <% end %>
+        </div>
+      <% else %>
+        <%= if @error do %>
+          <%!-- Error State --%>
+          <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+            <.icon name="hero-exclamation-triangle" class="size-12 text-red-500 mx-auto mb-4" />
+            <h3 class="text-lg font-semibold text-red-900 mb-2">Failed to Load Dashboard</h3>
+            <p class="text-red-700 mb-4">{@error}</p>
+            <button
+              type="button"
+              phx-click="retry_all"
+              class="inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"
+            >
+              <.icon name="hero-arrow-path" class="size-4 mr-2" /> Retry
+            </button>
+          </div>
+        <% else %>
+          <%!-- Customization Mode Info --%>
+          <%= if @customization_mode do %>
+            <div class="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div class="flex items-start gap-3">
+                <.icon name="hero-information-circle" class="size-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-blue-900">Customization Mode Active</p>
+                  <p class="text-sm text-blue-700 mt-1">
+                    Drag widgets to reorder them. Click the eye icon to hide widgets. Click "Done" when finished.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <%!-- Hidden Widgets Section --%>
+            <%= if @hidden_widgets != [] do %>
+              <div class="mb-6 bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <h3 class="text-sm font-semibold text-gray-900 mb-3">Hidden Widgets</h3>
+                <div class="flex flex-wrap gap-2">
+                  <%= for widget_id <- @hidden_widgets do %>
+                    <button
+                      type="button"
+                      phx-click="show_widget"
+                      phx-value-widget={widget_id}
+                      class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors"
+                    >
+                      <.icon name="hero-eye" class="size-4 mr-2" />
+                      {widget_id |> String.replace("_", " ") |> String.capitalize()}
+                    </button>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+
+          <%!-- Dashboard Widgets Grid --%>
+          <div
+            id="dashboard-widgets"
+            phx-hook={if @customization_mode, do: "Sortable", else: nil}
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
+          >
+            <%= for widget_id <- get_ordered_widgets(assigns) do %>
+              <div data-widget-id={widget_id} class="relative">
+                <%= if @customization_mode do %>
+                  <div class="absolute top-2 right-2 z-10 flex gap-2">
+                    <button
+                      type="button"
+                      phx-click="toggle_widget"
+                      phx-value-widget={widget_id}
+                      class="p-2 bg-white rounded-lg shadow-md hover:bg-gray-100 transition-colors"
+                      title="Hide widget"
+                    >
+                      <.icon name="hero-eye-slash" class="size-4 text-gray-600" />
+                    </button>
+                    <div class="drag-handle p-2 bg-white rounded-lg shadow-md cursor-move hover:bg-gray-100 transition-colors">
+                      <.icon name="hero-bars-3" class="size-4 text-gray-600" />
+                    </div>
+                  </div>
+                <% end %>
+
+                <%= if Map.has_key?(@widget_errors, widget_id) do %>
+                  <%= case widget_id do %>
+                    <% "performance_comparison" -> %>
+                      <div class="md:col-span-2 lg:col-span-3">
+                        <.widget_error
+                          title="Performance Comparison"
+                          message={@widget_errors[widget_id]}
+                          on_retry={JS.push("retry_widget", value: %{widget: widget_id})}
+                        />
+                      </div>
+                    <% "stock_movement" -> %>
+                      <div class="md:col-span-2 lg:col-span-3">
+                        <.widget_error
+                          title="Stock Movement Trends"
+                          message={@widget_errors[widget_id]}
+                          on_retry={JS.push("retry_widget", value: %{widget: widget_id})}
+                        />
+                      </div>
+                    <% "inventory_summary" -> %>
+                      <.widget_error
+                        title="Inventory Summary"
+                        message={@widget_errors[widget_id]}
+                        on_retry={JS.push("retry_widget", value: %{widget: widget_id})}
+                      />
+                    <% "financial_metrics" -> %>
+                      <.widget_error
+                        title="Financial Metrics"
+                        message={@widget_errors[widget_id]}
+                        on_retry={JS.push("retry_widget", value: %{widget: widget_id})}
+                      />
+                    <% "stock_alerts" -> %>
+                      <.widget_error
+                        title="Stock Alerts"
+                        message={@widget_errors[widget_id]}
+                        on_retry={JS.push("retry_widget", value: %{widget: widget_id})}
+                      />
+                    <% "top_products" -> %>
+                      <.widget_error
+                        title="Top Products"
+                        message={@widget_errors[widget_id]}
+                        on_retry={JS.push("retry_widget", value: %{widget: widget_id})}
+                      />
+                    <% "recent_transactions" -> %>
+                      <.widget_error
+                        title="Recent Transactions"
+                        message={@widget_errors[widget_id]}
+                        on_retry={JS.push("retry_widget", value: %{widget: widget_id})}
+                      />
+                    <% "farmer_activity" -> %>
+                      <.widget_error
+                        title="Top Farmers"
+                        message={@widget_errors[widget_id]}
+                        on_retry={JS.push("retry_widget", value: %{widget: widget_id})}
+                      />
+                    <% "customer_activity" -> %>
+                      <.widget_error
+                        title="Top Customers"
+                        message={@widget_errors[widget_id]}
+                        on_retry={JS.push("retry_widget", value: %{widget: widget_id})}
+                      />
+                    <% _ -> %>
+                      <.widget_error
+                        title="Widget"
+                        message={@widget_errors[widget_id]}
+                        on_retry={JS.push("retry_widget", value: %{widget: widget_id})}
+                      />
+                  <% end %>
+                <% else %>
+                  <%= case widget_id do %>
+                    <% "inventory_summary" -> %>
+                      <.inventory_summary_widget metrics={@inventory_metrics} />
+                    <% "financial_metrics" -> %>
+                      <%= if @can_view_financial do %>
+                        <.financial_metrics_widget metrics={@financial_metrics} restricted={false} />
+                      <% end %>
+                    <% "stock_alerts" -> %>
+                      <.stock_alerts_widget alerts={@stock_alerts} />
+                    <% "performance_comparison" -> %>
+                      <div class="md:col-span-2 lg:col-span-3">
+                        <.performance_comparison_widget comparison={@performance_comparison} />
+                      </div>
+                    <% "stock_movement" -> %>
+                      <div class="md:col-span-2 lg:col-span-3">
+                        <.stock_movement_chart_widget data={@stock_movement_data} />
+                      </div>
+                    <% "top_products" -> %>
+                      <.top_products_widget products={@top_products} />
+                    <% "recent_transactions" -> %>
+                      <.recent_transactions_widget
+                        stock_ins={@recent_stock_ins}
+                        stock_outs={@recent_stock_outs}
+                        can_navigate={@can_perform_actions}
+                      />
+                    <% "farmer_activity" -> %>
+                      <%= if @can_view_financial do %>
+                        <.farmer_activity_widget
+                          farmers={@top_farmers}
+                          can_navigate={@can_perform_actions}
+                        />
+                      <% end %>
+                    <% "customer_activity" -> %>
+                      <%= if @can_view_financial do %>
+                        <.customer_activity_widget
+                          customers={@top_customers}
+                          can_navigate={@can_perform_actions}
+                        />
+                      <% end %>
+                    <% _ -> %>
+                      <div></div>
+                  <% end %>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>

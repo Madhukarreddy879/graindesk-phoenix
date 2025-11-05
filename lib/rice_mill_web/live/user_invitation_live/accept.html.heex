@@ -1,0 +1,106 @@
+<div class="mx-auto max-w-sm">
+  <%= if @error do %>
+    <div class="text-center">
+      <%= case @error do %>
+        <% :not_found -> %>
+          <.header>
+            Invalid Invitation
+            <:subtitle>
+              This invitation link is invalid or has been removed.
+            </:subtitle>
+          </.header>
+          <div class="mt-8">
+            <.link
+              navigate={~p"/"}
+              class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
+            >
+              <.icon name="hero-arrow-left-solid" class="h-3 w-3" /> Go to home page
+            </.link>
+          </div>
+        <% :expired -> %>
+          <.header>
+            Invitation Expired
+            <:subtitle>
+              This invitation has expired. Please contact your administrator for a new invitation.
+            </:subtitle>
+          </.header>
+          <div class="mt-8">
+            <.link
+              navigate={~p"/"}
+              class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
+            >
+              <.icon name="hero-arrow-left-solid" class="h-3 w-3" /> Go to home page
+            </.link>
+          </div>
+        <% :already_accepted -> %>
+          <.header>
+            Invitation Already Used
+            <:subtitle>
+              This invitation has already been accepted. If you already have an account, please log in.
+            </:subtitle>
+          </.header>
+          <div class="mt-8 space-y-4">
+            <.link
+              navigate={~p"/users/log-in"}
+              class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
+            >
+              Log in to your account
+            </.link>
+          </div>
+      <% end %>
+    </div>
+  <% else %>
+    <.header>
+      Accept Invitation
+      <:subtitle>
+        You've been invited to join {@invitation.tenant.name}
+      </:subtitle>
+    </.header>
+
+    <.form for={@form} id="registration_form" phx-submit="save" phx-change="validate">
+      <div class="space-y-4">
+        <div class="rounded-lg bg-zinc-50 p-4">
+          <p class="text-sm font-medium text-zinc-700">Email</p>
+          <p class="text-sm text-zinc-900">{@invitation.email}</p>
+        </div>
+
+        <div class="rounded-lg bg-zinc-50 p-4">
+          <p class="text-sm font-medium text-zinc-700">Role</p>
+          <p class="text-sm text-zinc-900 capitalize">{@invitation.role}</p>
+        </div>
+
+        <.input field={@form[:name]} type="text" label="Full Name" required />
+        <.input field={@form[:password]} type="password" label="Password" required />
+        <.input
+          field={@form[:password_confirmation]}
+          type="password"
+          label="Confirm Password"
+          required
+        />
+
+        <div class="text-xs text-zinc-600">
+          <p class="font-medium mb-1">Password requirements:</p>
+          <ul class="list-disc list-inside space-y-1">
+            <li>At least 12 characters long</li>
+            <li>Maximum 72 characters</li>
+          </ul>
+        </div>
+
+        <div class="mt-6">
+          <.button phx-disable-with="Creating account..." class="w-full">
+            Create Account
+          </.button>
+        </div>
+      </div>
+    </.form>
+
+    <div class="mt-4 text-center text-sm">
+      <p class="text-zinc-600">
+        Already have an account?
+        <.link navigate={~p"/users/log-in"} class="font-semibold text-brand hover:underline">
+          Log in
+        </.link>
+      </p>
+    </div>
+  <% end %>
+</div>

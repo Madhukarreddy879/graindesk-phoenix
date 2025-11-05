@@ -1,0 +1,5 @@
+email,role,name,contact_phone
+operator1@example.com,operator,John Operator,555-0101
+operator2@example.com,operator,Jane Operator,555-0102
+viewer1@example.com,viewer,Bob Viewer,555-0201
+viewer2@example.com,viewer,Alice Viewer,555-0202
